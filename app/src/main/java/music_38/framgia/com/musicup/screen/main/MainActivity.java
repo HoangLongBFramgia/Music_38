@@ -15,7 +15,7 @@ import music_38.framgia.com.musicup.screen.base.BaseActivity;
 import music_38.framgia.com.musicup.screen.home.HomeFragment;
 import music_38.framgia.com.musicup.screen.person.PersonFragment;
 import music_38.framgia.com.musicup.screen.search.SearchFragment;
-import music_38.framgia.com.musicup.utils.ScreenManager;
+import music_38.framgia.com.musicup.utils.FragmentTransactionUtils;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener,
         BottomNavigationView.OnNavigationItemSelectedListener {
@@ -53,7 +53,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     private void openDefaultFragment() {
         mTextTitle.setText(R.string.title_discover);
         mBottomBar.setSelectedItemId(R.id.action_home);
-        ScreenManager.startFragment(getSupportFragmentManager(), new HomeFragment(), HomeFragment.TAG);
+        FragmentTransactionUtils.addFragment(getSupportFragmentManager(), new HomeFragment(),
+                R.id.container, HomeFragment.TAG);
     }
 
     @Override
@@ -67,7 +68,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     mFragment = new HomeFragment();
                 }
                 mTextTitle.setText(R.string.title_discover);
-                ScreenManager.startFragment(getSupportFragmentManager(), mFragment, HomeFragment.TAG);
+                FragmentTransactionUtils.addFragment(getSupportFragmentManager(), mFragment,
+                        R.id.container, HomeFragment.TAG);
                 mGroup.setVisibility(View.VISIBLE);
                 return true;
             case R.id.action_trending:
@@ -76,7 +78,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     mFragment = new SearchFragment();
                 }
                 mTextTitle.setText(R.string.title_trending);
-                ScreenManager.startFragment(getSupportFragmentManager(), mFragment, SearchFragment.TAG);
+                FragmentTransactionUtils.addFragment(getSupportFragmentManager(), mFragment,
+                        R.id.container, SearchFragment.TAG);
                 mGroup.setVisibility(View.GONE);
                 return true;
             case R.id.action_person:
@@ -86,7 +89,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 }
                 mTextTitle.setText(R.string.title_person);
                 mGroup.setVisibility(View.VISIBLE);
-                ScreenManager.startFragment(getSupportFragmentManager(), mFragment, PersonFragment.TAG);
+                FragmentTransactionUtils.addFragment(getSupportFragmentManager(), mFragment,
+                        R.id.container, PersonFragment.TAG);
                 return true;
         }
         return false;

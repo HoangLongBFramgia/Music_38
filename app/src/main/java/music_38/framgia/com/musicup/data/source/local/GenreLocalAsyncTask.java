@@ -11,7 +11,6 @@ import music_38.framgia.com.musicup.utils.Constants;
 public class GenreLocalAsyncTask extends AsyncTask<String, String, ArrayList<Genre>> {
 
     private Callback mCallBack;
-    private Exception mException;
 
     public GenreLocalAsyncTask(Callback callBack) {
         mCallBack = callBack;
@@ -49,10 +48,7 @@ public class GenreLocalAsyncTask extends AsyncTask<String, String, ArrayList<Gen
         if (mCallBack == null) {
             return;
         }
-        if (mException == null) {
-            mCallBack.getDataSuccess(genres);
-        } else {
-            mCallBack.getDataFailure(mException);
-        }
+        mCallBack.getDataSuccess(genres);
+
     }
 }

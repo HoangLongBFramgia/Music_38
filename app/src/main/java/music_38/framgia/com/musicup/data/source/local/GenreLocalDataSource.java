@@ -8,7 +8,7 @@ import music_38.framgia.com.musicup.data.source.TrackDataSource;
 
 public class GenreLocalDataSource implements TrackDataSource.LocalDataSource {
 
-    public void getAllGenre(Callback<ArrayList<Genre>> callback) {
+    private void getAllGenre(Callback<ArrayList<Genre>> callback) {
         new GenreLocalAsyncTask(callback).execute();
     }
 
