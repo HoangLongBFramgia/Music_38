@@ -3,6 +3,7 @@
     package="music_38.framgia.com.musicup">
 
     <application
+        android:name=".SoundCloudApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
