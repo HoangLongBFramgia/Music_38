@@ -53,7 +53,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     private void openDefaultFragment() {
         mTextTitle.setText(R.string.title_discover);
         mBottomBar.setSelectedItemId(R.id.action_home);
-        ScreenManager.startFragment(getSupportFragmentManager(), new HomeFragment(), getString(R.string.msg_tag_home));
+        ScreenManager.startFragment(getSupportFragmentManager(), new HomeFragment(), HomeFragment.TAG);
     }
 
     @Override
