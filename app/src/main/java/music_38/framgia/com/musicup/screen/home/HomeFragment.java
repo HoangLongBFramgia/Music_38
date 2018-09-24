@@ -17,11 +17,9 @@ public class HomeFragment extends BaseFragment {
 
     @Override
     protected void initComponent(View view) {
-
     }
 
     @Override
     protected void initData(Bundle savedInstanceState) {
-
     }
 }

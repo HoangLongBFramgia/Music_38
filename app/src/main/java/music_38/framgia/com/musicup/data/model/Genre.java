@@ -6,19 +6,19 @@ import android.os.Parcelable;
 public class Genre implements Parcelable {
 
     private String mTitle;
-    private String mImage;
+    private int mImage;
 
     public Genre() {
     }
 
-    public Genre(String title, String image) {
+    public Genre(String title, int image) {
         mTitle = title;
         mImage = image;
     }
 
     public Genre(Parcel in) {
         mTitle = in.readString();
-        mImage = in.readString();
+        mImage = in.readInt();
     }
 
     public Genre(GenreBuilder genreBuilder) {
@@ -46,19 +46,19 @@ public class Genre implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(mTitle);
-        parcel.writeString(mImage);
+        parcel.writeInt(mImage);
     }
 
     public static class GenreBuilder {
         private String mTitle;
-        private String mImage;
+        private int mImage;
 
         public GenreBuilder setTitle(String title) {
             mTitle = title;
             return this;
         }
 
-        public GenreBuilder setImage(String image) {
+        public GenreBuilder setImage(int image) {
             mImage = image;
             return this;
         }
@@ -76,11 +76,11 @@ public class Genre implements Parcelable {
         mTitle = title;
     }
 
-    public String getImage() {
+    public int getImage() {
         return mImage;
     }
 
-    public void setImage(String image) {
+    public void setImage(int image) {
         mImage = image;
     }
 }
