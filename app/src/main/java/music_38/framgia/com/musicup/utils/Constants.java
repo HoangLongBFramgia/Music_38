@@ -3,17 +3,9 @@ package music_38.framgia.com.musicup.utils;
 import music_38.framgia.com.musicup.R;
 
 public class Constants {
-    public class Delay {
-        public static final int DELAY_500 = 500;
-    }
-
-    public class TAG {
-        public static final String TAG_HOME = "TAG_HOME";
-        public static final String TAG_SEARCH = "TAG_SEARCH";
-        public static final String TAG_PERSON = "TAG_PERSON";
-    }
 
     public class Genre {
+        public static final String BUNDLE_GENRE = "TYPE_GENRE";
         public static final String ALL_MUSIC = "All Music";
         public static final String ALL_AUDIO = "All Audio";
         public static final String ALTERNATIVE_ROCK = "Alternative Rock";
