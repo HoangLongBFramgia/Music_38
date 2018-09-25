@@ -20,17 +20,17 @@ public class GenreLocalAsyncTask extends AsyncTask<String, String, ArrayList<Gen
     protected ArrayList<Genre> doInBackground(String... strings) {
         ArrayList<Genre> genres = new ArrayList<>();
         Genre mAllMusic = new Genre(Constants.Genre.ALL_MUSIC,
-                Constants.Genre.IMAGE_ALL_MUSIC);
+                Constants.Genre.IMAGE_ALL_MUSIC, TypeMusic.ALL_MUSIC);
         Genre mAllAudio = new Genre(Constants.Genre.ALL_AUDIO,
-                Constants.Genre.IMAGE_ALL_AUDIO);
+                Constants.Genre.IMAGE_ALL_AUDIO, TypeMusic.ALL_AUDIO);
         Genre mAllAmbient = new Genre(Constants.Genre.AMBIENT,
-                Constants.Genre.IMAGE_AMBIENT);
+                Constants.Genre.IMAGE_AMBIENT, TypeMusic.AMBIENT);
         Genre mAllCountry = new Genre(Constants.Genre.COUNTRY,
-                Constants.Genre.IMAGE_COUNTRY);
+                Constants.Genre.IMAGE_COUNTRY, TypeMusic.COUNTRY);
         Genre mAllRock = new Genre(Constants.Genre.ALTERNATIVE_ROCK,
-                Constants.Genre.IMAGE_ALTERNATIVE_ROCK);
+                Constants.Genre.IMAGE_ALTERNATIVE_ROCK, TypeMusic.ALTERNATIVE_ROCK);
         Genre mClassical = new Genre(Constants.Genre.CLASSICAL,
-                Constants.Genre.IMAGE_CLASSICAL);
+                Constants.Genre.IMAGE_CLASSICAL, TypeMusic.CLASSICAL);
 
         genres.add(mAllMusic);
         genres.add(mAllAudio);
