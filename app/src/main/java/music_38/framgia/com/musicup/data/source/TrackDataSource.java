@@ -7,6 +7,7 @@ import music_38.framgia.com.musicup.data.model.Genre;
 public interface TrackDataSource {
 
     interface RemoteDataSource {
+        void getGenre(Genre genre, Callback<Genre> callback);
     }
 
     interface LocalDataSource {

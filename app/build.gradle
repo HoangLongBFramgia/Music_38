@@ -1,6 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
+    defaultConfig {
+        buildConfigField "String", "API_KEY", "\"${API_KEY}\""
+    }
+}
+
+android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "music_38.framgia.com.musicup"

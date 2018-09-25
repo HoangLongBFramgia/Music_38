@@ -1,6 +1,7 @@
 package music_38.framgia.com.musicup.screen.playlist;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,8 @@ import android.widget.Toast;
 
 import music_38.framgia.com.musicup.R;
 import music_38.framgia.com.musicup.data.model.Genre;
+import music_38.framgia.com.musicup.data.repository.TrackRepository;
+import music_38.framgia.com.musicup.data.source.remote.TrackRemoteDataSource;
 import music_38.framgia.com.musicup.screen.base.BaseFragment;
 
 public class PlayListFragment extends BaseFragment implements PlayListContract.View, AppBarLayout.OnOffsetChangedListener {
@@ -21,6 +24,10 @@ public class PlayListFragment extends BaseFragment implements PlayListContract.V
     private AppBarLayout mAppBar;
     private CollapsingToolbarLayout mCollapsingToolbar;
     private TextView mTextTitleToolbar;
+    private PlayListPresenter mDetailPresenter;
+    private String mType;
+    private String mTitle;
+    private Genre mGenre;
     /**
      * Check CollapsingToolbar expanded or closed
      **/
@@ -47,6 +54,16 @@ public class PlayListFragment extends BaseFragment implements PlayListContract.V
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle bundle = this.getArguments();
+        if (bundle == null) {
+            return;
+        }
+        mGenre = bundle.getParcelable(BUNDLE_GENRE);
+    }
+
+    @Override
     protected void initComponent(View view) {
         mToolbar = view.findViewById(R.id.toolbar);
         mAppBar = view.findViewById(R.id.app_bar);
@@ -55,18 +72,13 @@ public class PlayListFragment extends BaseFragment implements PlayListContract.V
         setUpToolbar();
     }
 
-    private void setUpToolbar() {
-        if (getActivity() == null) {
-            return;
-        }
-        ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        mAppBar.setExpanded(false);
-        mAppBar.addOnOffsetChangedListener(this);
-    }
-
     @Override
     protected void initData(Bundle savedInstanceState) {
+        TrackRemoteDataSource trackRemoteDataSource = new TrackRemoteDataSource();
+        TrackRepository trackRepository = new TrackRepository(trackRemoteDataSource);
+        mDetailPresenter = new PlayListPresenter(trackRepository);
+        mDetailPresenter.setView(this);
+        loadData();
     }
 
     @Override
@@ -101,5 +113,19 @@ public class PlayListFragment extends BaseFragment implements PlayListContract.V
             mTextTitleToolbar.setVisibility(View.GONE);
             mIsShow = false;
         }
+    }
+
+    private void setUpToolbar() {
+        if (getActivity() == null) {
+            return;
+        }
+        ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        mAppBar.setExpanded(false);
+        mAppBar.addOnOffsetChangedListener(this);
+    }
+
+    private void loadData() {
+        mDetailPresenter.getTrackByGenre(mGenre);
     }
 }

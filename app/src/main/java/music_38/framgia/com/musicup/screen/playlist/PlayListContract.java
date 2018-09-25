@@ -16,6 +16,6 @@ public class PlayListContract {
     }
 
     interface Presenter extends BasePresenter {
-        void getTrackByGenre(String type);
+        void getTrackByGenre(Genre genre);
     }
 }
