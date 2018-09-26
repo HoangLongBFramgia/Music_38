@@ -9,4 +9,5 @@
     <string name="title_default">Title</string>
     <string name="title_blank">\t</string>
     <string name="title_song">songs</string>
+    <string name="title_time_default">00:00</string>
 </resources>
