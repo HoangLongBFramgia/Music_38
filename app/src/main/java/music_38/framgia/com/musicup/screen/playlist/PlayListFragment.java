@@ -183,6 +183,5 @@ public class PlayListFragment extends BaseFragment implements PlayListContract.V
 
     @Override
     public void onItemPlaylistClick(List<Track> tracks, int position) {
-
     }
 }
