@@ -18,6 +18,7 @@ public class SongService extends Service implements SongServiceContract.ISongSer
     public static final String EXTRA_LIST = "EXTRA_LIST";
     public static final String EXTRA_POSITION = "EXTRA_POSITION";
     private final IBinder mSongBind = new SongBinder();
+    private SongManager mSongManager;
     private SongServiceContract.OnMediaPlayerChangeListener mOnMediaPlayerChangeListener;
 
     public static Intent getIntentService(Context context, List<Track> tracks, int position) {
@@ -37,12 +38,12 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public int getDurationSong() {
-        return 0;
+        return mSongManager.getDurationTrack();
     }
 
     @Override
     public int getCurrentDurationSong() {
-        return 0;
+        return mSongManager.getCurrentDurationTrack();
     }
 
     @Override
@@ -51,6 +52,7 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public void play() {
+        mSongManager.play();
     }
 
     @Override
@@ -79,11 +81,12 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public void seekTo(int seekTo) {
+        mSongManager.seekTo(seekTo);
     }
 
     @Override
     public Track getTrackCurrent() {
-        return null;
+        return mSongManager.getTrackCurrent();
     }
 
     @Override
@@ -99,6 +102,14 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            List<Track> tracks = intent.getParcelableArrayListExtra(EXTRA_LIST);
+            if (tracks != null) {
+                int position = intent.getIntExtra(EXTRA_POSITION, 0);
+                mSongManager = new SongManager(getApplicationContext(), tracks, position);
+                mSongManager.play();
+            }
+        }
         return START_STICKY;
     }
 
@@ -116,5 +127,14 @@ public class SongService extends Service implements SongServiceContract.ISongSer
     @Override
     public void onDestroy() {
         stopForeground(true);
+    }
+
+    public SongServiceContract.ISongService getISongService() {
+        return this;
+    }
+
+    public void setOnMediaPlayerChangeListener(SongServiceContract.OnMediaPlayerChangeListener onMediaPlayerChangeListener) {
+        mOnMediaPlayerChangeListener = onMediaPlayerChangeListener;
+        mSongManager.setMediaPlayerChangeListener(onMediaPlayerChangeListener);
     }
 }
