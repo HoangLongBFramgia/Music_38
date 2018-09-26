@@ -18,7 +18,7 @@ import music_38.framgia.com.musicup.screen.search.SearchFragment;
 import music_38.framgia.com.musicup.utils.FragmentTransactionUtils;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener,
-        BottomNavigationView.OnNavigationItemSelectedListener {
+        BottomNavigationView.OnNavigationItemSelectedListener, OnHideViewCallback {
 
     private BottomNavigationView mBottomBar;
     private TextView mTextTitle;
@@ -118,5 +118,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onHideBottomBar(int visibility) {
+        mBottomBar.setVisibility(visibility);
     }
 }

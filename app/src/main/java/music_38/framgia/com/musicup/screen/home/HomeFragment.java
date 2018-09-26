@@ -16,7 +16,7 @@ import music_38.framgia.com.musicup.screen.base.BaseFragment;
 import music_38.framgia.com.musicup.screen.playlist.PlayListFragment;
 import music_38.framgia.com.musicup.utils.FragmentTransactionUtils;
 
-public class HomeFragment extends BaseFragment implements HomeContract.View, HomeAdapter.OnClickItemListener {
+public class HomeFragment extends BaseFragment implements HomeContract.View, HomeAdapter.OnItemClickListener {
 
     public static final String TAG = HomeFragment.class.getName();
 
@@ -59,7 +59,7 @@ public class HomeFragment extends BaseFragment implements HomeContract.View, Hom
     }
 
     @Override
-    public void onClickItemListener(Genre genre) {
+    public void onItemClickHomeListener(Genre genre) {
         PlayListFragment fragment = PlayListFragment.newInstance(genre);
         FragmentTransactionUtils.addFragment(
                 getFragmentManager(),
