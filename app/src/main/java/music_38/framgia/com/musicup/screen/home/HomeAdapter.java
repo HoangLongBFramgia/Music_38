@@ -17,12 +17,12 @@ import music_38.framgia.com.musicup.data.model.Genre;
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder> {
 
     private ArrayList<Genre> mGenres;
-    private OnClickItemListener mOnClickItemListener;
+    private OnItemClickListener mOnItemClickListener;
     private LayoutInflater mLayoutInflater;
 
-    HomeAdapter(ArrayList<Genre> genres, OnClickItemListener onClickItemListener) {
+    HomeAdapter(ArrayList<Genre> genres, OnItemClickListener onItemClickListener) {
         mGenres = genres;
-        mOnClickItemListener = onClickItemListener;
+        mOnItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -32,7 +32,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
             mLayoutInflater = LayoutInflater.from(viewGroup.getContext());
         }
         View view = mLayoutInflater.inflate(R.layout.item_home, viewGroup, false);
-        return new HomeViewHolder(view, mOnClickItemListener);
+        return new HomeViewHolder(view, mOnItemClickListener);
     }
 
     @Override
@@ -50,10 +50,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
 
         private SimpleDraweeView mImageHome;
         private TextView mTitleGenre;
-        private OnClickItemListener mListener;
+        private OnItemClickListener mListener;
         private Genre mGenre;
 
-        HomeViewHolder(@NonNull View itemView, OnClickItemListener listener) {
+        HomeViewHolder(@NonNull View itemView, OnItemClickListener listener) {
             super(itemView);
             mListener = listener;
             mImageHome = itemView.findViewById(R.id.image_home);
@@ -67,7 +67,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
                 return;
             }
             if (view.getId() == R.id.constraint_item_home) {
-                mListener.onClickItemListener(mGenre);
+                mListener.onItemClickHomeListener(mGenre);
             }
         }
 
@@ -81,8 +81,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
         }
     }
 
-    public interface OnClickItemListener {
-        void onClickItemListener(Genre genre);
+    public interface OnItemClickListener {
+        void onItemClickHomeListener(Genre genre);
     }
 }
 
