@@ -1,6 +1,7 @@
 package music_38.framgia.com.musicup.screen.playlist;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,6 +26,8 @@ import music_38.framgia.com.musicup.data.repository.TrackRepository;
 import music_38.framgia.com.musicup.data.source.remote.TrackRemoteDataSource;
 import music_38.framgia.com.musicup.screen.base.BaseFragment;
 import music_38.framgia.com.musicup.screen.main.OnHideViewCallback;
+import music_38.framgia.com.musicup.screen.play.PlayActivity;
+import music_38.framgia.com.musicup.service.SongService;
 import music_38.framgia.com.musicup.utils.Utils;
 
 public class PlayListFragment extends BaseFragment implements PlayListContract.View,
@@ -183,5 +186,12 @@ public class PlayListFragment extends BaseFragment implements PlayListContract.V
 
     @Override
     public void onItemPlaylistClick(List<Track> tracks, int position) {
+        Intent intentService = SongService.getIntentService(getContext(), tracks, position);
+        if (getActivity() == null) {
+            return;
+        }
+        getActivity().startService(intentService);
+        Intent intent = new Intent(getActivity(), PlayActivity.class);
+        startActivity(intent);
     }
 }

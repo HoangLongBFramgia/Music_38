@@ -42,4 +42,10 @@ public class Constants {
         public static final int READ_TIMEOUT = 15000;
         public static final int CONNECTION_TIMEOUT = 15000;
     }
+
+    public class Stream {
+        public static final String STREAM_URL = "http://api.soundcloud.com/tracks/";
+        public static final String STREAM = "/stream";
+        public static final String STREAM_CLIENT_ID = "?client_id=";
+    }
 }
