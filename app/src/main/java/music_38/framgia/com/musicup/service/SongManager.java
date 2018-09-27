@@ -19,6 +19,7 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
     private SongServiceContract.OnMediaPlayerChangeListener mMediaPlayerChangeListener;
     private List<Track> mTracks;
     private int mSongPosition;
+    private boolean isPlaying;
 
     public SongManager(Context context, List<Track> tracks, int position) {
         this.mContext = context;
@@ -32,6 +33,14 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
     }
 
     public void playPauseSong() {
+        if (isPlaying) {
+            mMediaPlayerChangeListener.onMediaStateChange(true);
+            mMediaPlayer.start();
+        } else {
+            mMediaPlayerChangeListener.onMediaStateChange(false);
+            mMediaPlayer.pause();
+        }
+        isPlaying = !isPlaying;
     }
 
     public void play() {
@@ -54,6 +63,9 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
             mMediaPlayer.setOnPreparedListener(this);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        if (mMediaPlayerChangeListener != null) {
+            mMediaPlayerChangeListener.onTrackChange(mTracks.get(mSongPosition));
         }
     }
 
@@ -79,6 +91,22 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
 
     public void seekTo(int seekTo) {
         mMediaPlayer.seekTo(seekTo);
+    }
+
+    public void nextSong() {
+        mSongPosition++;
+        if (mSongPosition >= mTracks.size()) {
+            mSongPosition = 0;
+        }
+        play();
+    }
+
+    public void previousSong() {
+        mSongPosition--;
+        if (mSongPosition < 0) {
+            mSongPosition = mTracks.size() - 1;
+        }
+        play();
     }
 
     public void onPrepared(MediaPlayer mediaPlayer) {

@@ -60,6 +60,7 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
             if (track != null) {
                 updateUI(track);
             }
+            mHandler.postDelayed(mRunnable, DELAY_SEEK_BAR_UPDATE);
             mMusicBound = true;
         }
 
@@ -134,12 +135,16 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onMediaStateChange(boolean isPlaying) {
-
+        if (isPlaying) {
+            mImagePlay.setImageResource(R.drawable.ic_pause_mini);
+        } else {
+            mImagePlay.setImageResource(R.drawable.ic_play_mini);
+        }
     }
 
     @Override
     public void onTrackChange(Track track) {
-
+        updateUI(track);
     }
 
     @Override
