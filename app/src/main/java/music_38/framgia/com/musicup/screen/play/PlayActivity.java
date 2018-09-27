@@ -28,6 +28,8 @@ import music_38.framgia.com.musicup.utils.Utils;
 import static music_38.framgia.com.musicup.service.LoopMode.LOOP_ALL;
 import static music_38.framgia.com.musicup.service.LoopMode.LOOP_ONE;
 import static music_38.framgia.com.musicup.service.LoopMode.NO_LOOP;
+import static music_38.framgia.com.musicup.service.ShuffleMode.NO_SHUFFLE;
+import static music_38.framgia.com.musicup.service.ShuffleMode.SHUFFLE_ALL;
 
 public class PlayActivity extends BaseActivity implements View.OnClickListener
         , SongServiceContract.OnMediaPlayerChangeListener, SeekBar.OnSeekBarChangeListener {
@@ -142,6 +144,7 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
         PlayModeLocalDataSource playModeLocalDataSource = new PlayModeLocalDataSource();
         PlayModeRepository playModeRepository = new PlayModeRepository(playModeLocalDataSource);
         mPlayPresenter = new PlayPresenter(playModeRepository);
+        mPlayMode = mPlayPresenter.getPlayMode();
     }
 
     @Override
@@ -165,7 +168,7 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onShuffleChange(int state) {
-
+        updateStateShuffle(state);
     }
 
     @Override
@@ -214,9 +217,8 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
                 mISongService.previousSong();
                 break;
             case R.id.image_loop:
-                PlayMode playMode = mPlayPresenter.getPlayMode();
                 int loopType = NO_LOOP;
-                switch (playMode.getLoopMode()) {
+                switch (mPlayMode.getLoopMode()) {
                     case LOOP_ONE:
                         loopType = LOOP_ALL;
                         break;
@@ -227,12 +229,23 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
                         loopType = LOOP_ONE;
                         break;
                 }
-                playMode.setLoopMode(loopType);
-                mPlayPresenter.savePlayMode(playMode);
-                mISongService.loopSong(playMode.getLoopMode());
+                mPlayMode.setLoopMode(loopType);
+                mPlayPresenter.savePlayMode(mPlayMode);
+                mISongService.loopSong(mPlayMode.getLoopMode());
                 break;
             case R.id.ic_shuffle:
-                mISongService.shuffleSong();
+                int shuffleType = NO_SHUFFLE;
+                switch (mPlayMode.getShuffleMode()) {
+                    case SHUFFLE_ALL:
+                        shuffleType = NO_SHUFFLE;
+                        break;
+                    case NO_SHUFFLE:
+                        shuffleType = SHUFFLE_ALL;
+                        break;
+                }
+                mPlayMode.setShuffleMode(shuffleType);
+                mPlayPresenter.savePlayMode(mPlayMode);
+                mISongService.shuffleSong(mPlayMode.getShuffleMode());
                 break;
         }
     }
@@ -276,8 +289,8 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
             mTextDuration.setText(Utils.convertTime(track.getDuration()));
             mSeekBar.setMax(mISongService.getDurationSong());
         }
-
         updateStateLoop(mPlayPresenter.getPlayMode().getLoopMode());
+        mISongService.shuffleSong(mPlayPresenter.getPlayMode().getShuffleMode());
         updateSeekBar();
     }
 
@@ -305,6 +318,17 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
                 break;
             case NO_LOOP:
                 mImageLoop.setImageResource(R.drawable.ic_loop);
+                break;
+        }
+    }
+
+    private void updateStateShuffle(int state) {
+        switch (state) {
+            case SHUFFLE_ALL:
+                mImageShuffle.setImageResource(R.drawable.ic_shuffle_active);
+                break;
+            case NO_SHUFFLE:
+                mImageShuffle.setImageResource(R.drawable.ic_shuffle);
                 break;
         }
     }

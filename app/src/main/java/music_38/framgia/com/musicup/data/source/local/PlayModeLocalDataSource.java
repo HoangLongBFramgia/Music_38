@@ -4,7 +4,7 @@ import music_38.framgia.com.musicup.data.source.PlayModeDataSource;
 import music_38.framgia.com.musicup.utils.SharedPrefs;
 
 public class PlayModeLocalDataSource implements PlayModeDataSource {
-    private static final String PREF_IS_SHUFFLE = "PREF_IS_SHUFFLE";
+    private static final String PREF_SHUFFLE_MODE = "PREF_SHUFFLE_MODE";
     private static final String PREF_LOOP_MODE = "PREF_PLAY_MODE";
     private static PlayModeLocalDataSource sInstance;
     private SharedPrefs mSharedPrefs;
@@ -30,12 +30,14 @@ public class PlayModeLocalDataSource implements PlayModeDataSource {
             return;
         }
         mSharedPrefs.put(PREF_LOOP_MODE, mode.getLoopMode());
+        mSharedPrefs.put(PREF_SHUFFLE_MODE, mode.getShuffleMode());
     }
 
     @Override
     public PlayMode getPlayMode() {
         PlayMode mode = new PlayMode();
         mode.setLoopMode(mSharedPrefs.get(PREF_LOOP_MODE, Integer.class));
+        mode.setShuffleMode(mSharedPrefs.get(PREF_SHUFFLE_MODE, Integer.class));
         return mode;
     }
 }

@@ -16,7 +16,7 @@ public class SongServiceContract {
 
         void nextSongMini();
 
-        void shuffleSong();
+        void shuffleSong(int shuffleType);
 
         void loopSong(int loopType);
 

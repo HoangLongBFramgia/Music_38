@@ -71,7 +71,8 @@ public class SongService extends Service implements SongServiceContract.ISongSer
     }
 
     @Override
-    public void shuffleSong() {
+    public void shuffleSong(int shuffleType) {
+        mSongManager.shuffleTrack(shuffleType);
     }
 
     @Override
