@@ -17,10 +17,17 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import music_38.framgia.com.musicup.R;
 import music_38.framgia.com.musicup.data.model.Track;
+import music_38.framgia.com.musicup.data.repository.PlayModeRepository;
+import music_38.framgia.com.musicup.data.source.local.PlayMode;
+import music_38.framgia.com.musicup.data.source.local.PlayModeLocalDataSource;
 import music_38.framgia.com.musicup.screen.base.BaseActivity;
 import music_38.framgia.com.musicup.service.SongService;
 import music_38.framgia.com.musicup.service.SongServiceContract;
 import music_38.framgia.com.musicup.utils.Utils;
+
+import static music_38.framgia.com.musicup.service.LoopMode.LOOP_ALL;
+import static music_38.framgia.com.musicup.service.LoopMode.LOOP_ONE;
+import static music_38.framgia.com.musicup.service.LoopMode.NO_LOOP;
 
 public class PlayActivity extends BaseActivity implements View.OnClickListener
         , SongServiceContract.OnMediaPlayerChangeListener, SeekBar.OnSeekBarChangeListener {
@@ -48,6 +55,8 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
     private Handler mHandler;
     private Runnable mRunnable;
     private int mPosition;
+    private PlayPresenter mPlayPresenter;
+    private PlayMode mPlayMode;
 
     private ServiceConnection mMusicConnection = new ServiceConnection() {
         @Override
@@ -130,7 +139,9 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     protected void initData(Bundle savedInstanceState) {
-
+        PlayModeLocalDataSource playModeLocalDataSource = new PlayModeLocalDataSource();
+        PlayModeRepository playModeRepository = new PlayModeRepository(playModeLocalDataSource);
+        mPlayPresenter = new PlayPresenter(playModeRepository);
     }
 
     @Override
@@ -149,7 +160,7 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onLoopChange(int state) {
-
+        updateStateLoop(state);
     }
 
     @Override
@@ -203,7 +214,22 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
                 mISongService.previousSong();
                 break;
             case R.id.image_loop:
-                mISongService.loopSong();
+                PlayMode playMode = mPlayPresenter.getPlayMode();
+                int loopType = NO_LOOP;
+                switch (playMode.getLoopMode()) {
+                    case LOOP_ONE:
+                        loopType = LOOP_ALL;
+                        break;
+                    case LOOP_ALL:
+                        loopType = NO_LOOP;
+                        break;
+                    case NO_LOOP:
+                        loopType = LOOP_ONE;
+                        break;
+                }
+                playMode.setLoopMode(loopType);
+                mPlayPresenter.savePlayMode(playMode);
+                mISongService.loopSong(playMode.getLoopMode());
                 break;
             case R.id.ic_shuffle:
                 mISongService.shuffleSong();
@@ -250,6 +276,8 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
             mTextDuration.setText(Utils.convertTime(track.getDuration()));
             mSeekBar.setMax(mISongService.getDurationSong());
         }
+
+        updateStateLoop(mPlayPresenter.getPlayMode().getLoopMode());
         updateSeekBar();
     }
 
@@ -265,5 +293,19 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
                 mHandler.postDelayed(mRunnable, DELAY_SEEK_BAR_UPDATE);
             }
         };
+    }
+
+    private void updateStateLoop(int state) {
+        switch (state) {
+            case LOOP_ONE:
+                mImageLoop.setImageResource(R.drawable.ic_loop_one);
+                break;
+            case LOOP_ALL:
+                mImageLoop.setImageResource(R.drawable.ic_loop_all);
+                break;
+            case NO_LOOP:
+                mImageLoop.setImageResource(R.drawable.ic_loop);
+                break;
+        }
     }
 }

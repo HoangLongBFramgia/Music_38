@@ -11,15 +11,21 @@ import java.util.List;
 import music_38.framgia.com.musicup.data.model.Track;
 import music_38.framgia.com.musicup.data.source.remote.TrackRemoteDataSource;
 
+import static music_38.framgia.com.musicup.service.LoopMode.LOOP_ALL;
+import static music_38.framgia.com.musicup.service.LoopMode.LOOP_ONE;
+import static music_38.framgia.com.musicup.service.LoopMode.NO_LOOP;
+
 public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener {
 
+    public static final String PREF_LOOP = "loop";
     private MediaPlayer mMediaPlayer;
     private Context mContext;
     private SongServiceContract.OnMediaPlayerChangeListener mMediaPlayerChangeListener;
     private List<Track> mTracks;
     private int mSongPosition;
     private boolean isPlaying;
+    private int mLoopType;
 
     public SongManager(Context context, List<Track> tracks, int position) {
         this.mContext = context;
@@ -50,14 +56,12 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         }
         String urlStream = TrackRemoteDataSource.getStreamUrl(track.getId());
         if (mMediaPlayer != null) {
-            mMediaPlayer.pause();
-            mMediaPlayer.reset();
-        } else {
+            destroyMediaPlayer(mMediaPlayer);
+        }
+        try {
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        }
-        try {
             mMediaPlayer.setDataSource(urlStream);
             mMediaPlayer.prepareAsync();
             mMediaPlayer.setOnPreparedListener(this);
@@ -67,6 +71,12 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         if (mMediaPlayerChangeListener != null) {
             mMediaPlayerChangeListener.onTrackChange(mTracks.get(mSongPosition));
         }
+    }
+
+    private void destroyMediaPlayer(MediaPlayer mediaPlayer) {
+        mediaPlayer.pause();
+        mediaPlayer.reset();
+        mediaPlayer.release();
     }
 
     public Track getTrackCurrent() {
@@ -109,6 +119,38 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         play();
     }
 
+    public void loopTrack(int loopType) {
+        mLoopType = loopType;
+        mMediaPlayerChangeListener.onLoopChange(loopType);
+    }
+
+    private void checkLoopMode() {
+        switch (mLoopType) {
+            case LOOP_ALL:
+                nextSong();
+                break;
+            case LOOP_ONE:
+                seekTo(0);
+                mMediaPlayer.start();
+                break;
+            case NO_LOOP:
+                noLoopTrack();
+                break;
+        }
+    }
+
+    private void noLoopTrack() {
+        if (mSongPosition < mTracks.size() - 1) {
+            mSongPosition++;
+            play();
+        } else {
+            mSongPosition = 0;
+            seekTo(0);
+            stop();
+        }
+    }
+
+    @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         mMediaPlayerChangeListener.onDurationSong(mediaPlayer.getDuration());
         mediaPlayer.start();
@@ -117,11 +159,12 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
 
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-        return false;
+        return true;
     }
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
+        checkLoopMode();
     }
 
     @Override

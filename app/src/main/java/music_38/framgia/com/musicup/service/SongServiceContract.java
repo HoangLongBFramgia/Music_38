@@ -18,7 +18,7 @@ public class SongServiceContract {
 
         void shuffleSong();
 
-        void loopSong();
+        void loopSong(int loopType);
 
         void downloadCurrentTrack();
 

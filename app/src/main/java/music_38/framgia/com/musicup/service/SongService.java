@@ -75,7 +75,8 @@ public class SongService extends Service implements SongServiceContract.ISongSer
     }
 
     @Override
-    public void loopSong() {
+    public void loopSong(int loopType) {
+        mSongManager.loopTrack(loopType);
     }
 
     @Override
@@ -89,6 +90,8 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public Track getTrackCurrent() {
+        if (mSongManager == null)
+            return null;
         return mSongManager.getTrackCurrent();
     }
 
