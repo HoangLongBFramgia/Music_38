@@ -48,6 +48,7 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public void playPauseSong() {
+        mSongManager.playPauseSong();
     }
 
     @Override
@@ -57,10 +58,12 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public void previousSong() {
+        mSongManager.previousSong();
     }
 
     @Override
     public void nextSong() {
+        mSongManager.nextSong();
     }
 
     @Override
