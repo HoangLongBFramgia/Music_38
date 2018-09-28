@@ -173,7 +173,7 @@
         android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/dimen_35"
         android:layout_toStartOf="@+id/image_previous"
-        android:src="@drawable/ic_repeat"
+        android:src="@drawable/ic_loop"
         app:layout_constraintBottom_toBottomOf="@+id/ic_audio_pause"
         app:layout_constraintEnd_toStartOf="@+id/image_previous"
         app:layout_constraintTop_toTopOf="@+id/ic_audio_pause" />
