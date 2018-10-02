@@ -6,7 +6,11 @@ import android.media.MediaPlayer;
 import android.os.PowerManager;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
+import java.util.RandomAccess;
 
 import music_38.framgia.com.musicup.data.model.Track;
 import music_38.framgia.com.musicup.data.source.remote.TrackRemoteDataSource;
@@ -14,23 +18,28 @@ import music_38.framgia.com.musicup.data.source.remote.TrackRemoteDataSource;
 import static music_38.framgia.com.musicup.service.LoopMode.LOOP_ALL;
 import static music_38.framgia.com.musicup.service.LoopMode.LOOP_ONE;
 import static music_38.framgia.com.musicup.service.LoopMode.NO_LOOP;
+import static music_38.framgia.com.musicup.service.ShuffleMode.NO_SHUFFLE;
+import static music_38.framgia.com.musicup.service.ShuffleMode.SHUFFLE_ALL;
 
 public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener {
 
-    public static final String PREF_LOOP = "loop";
     private MediaPlayer mMediaPlayer;
     private Context mContext;
     private SongServiceContract.OnMediaPlayerChangeListener mMediaPlayerChangeListener;
     private List<Track> mTracks;
+    private List<Track> mUnShuffleTracks;
     private int mSongPosition;
     private boolean isPlaying;
     private int mLoopType;
+    private int mShuffle;
 
     public SongManager(Context context, List<Track> tracks, int position) {
         this.mContext = context;
         this.mSongPosition = position;
         this.mTracks = tracks;
+        mUnShuffleTracks = new ArrayList<>();
+        mUnShuffleTracks.addAll(mTracks);
         this.mMediaPlayer = new MediaPlayer();
     }
 
@@ -150,11 +159,67 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         }
     }
 
+    public void shuffleTrack(int shuffleType) {
+        mMediaPlayerChangeListener.onShuffleChange(shuffleType);
+        checkShuffleMode(shuffleType);
+    }
+
+    private void checkShuffleMode(int shuffleType) {
+        mShuffle = shuffleType;
+        switch (shuffleType) {
+            case SHUFFLE_ALL:
+                shuffle();
+                break;
+            case NO_SHUFFLE:
+                unShuffle();
+                break;
+        }
+        mMediaPlayerChangeListener.onShuffleChange(mShuffle);
+    }
+
+    private void unShuffle() {
+        mTracks.clear();
+        mTracks.addAll(mUnShuffleTracks);
+        mSongPosition = mTracks.indexOf(mTracks.get(mSongPosition));
+    }
+
+    private void shuffle() {
+        Track track = mTracks.get(mSongPosition);
+        mTracks.remove(mSongPosition);
+        shuffleList(mTracks, new Random());
+        mTracks.add(mSongPosition, track);
+    }
+
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        mMediaPlayerChangeListener.onDurationSong(mediaPlayer.getDuration());
         mediaPlayer.start();
         mMediaPlayer.setOnCompletionListener(this);
+    }
+
+    private void shuffleList(List<Track> list, Random random) {
+        @SuppressWarnings("unchecked") final List<Track> trackSwap = list;
+        if (list instanceof RandomAccess) {
+            for (int i = trackSwap.size() - 1; i > 0; i--) {
+                int index = random.nextInt(i + 1);
+                trackSwap.set(index, trackSwap.set(i, trackSwap.get(index)));
+            }
+        } else {
+            Track[] array = (Track[]) trackSwap.toArray();
+            for (int i = array.length - 1; i > 0; i--) {
+                int index = random.nextInt(i + 1);
+                Track temp = array[i];
+                array[i] = array[index];
+                array[index] = temp;
+            }
+            int i = 0;
+            ListIterator<Track> it = trackSwap.listIterator();
+            while (it.hasNext()) {
+                it.next();
+                it.set(array[i++]);
+            }
+        }
+        mTracks = new ArrayList<>();
+        mTracks.addAll(trackSwap);
     }
 
     @Override
