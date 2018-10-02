@@ -21,6 +21,10 @@ public class Genre implements Parcelable {
         mType = type;
     }
 
+    public Genre(List<Track> tracks) {
+        mTracks = tracks;
+    }
+
     public Genre(String title, List<Track> tracks, String type) {
         mTitle = title;
         mTracks = tracks;

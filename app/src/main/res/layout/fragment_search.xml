@@ -1,13 +1,126 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".screen.search.SearchFragment">
+    android:background="@color/white"
+    android:clickable="true"
+    android:fitsSystemWindows="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/edit_search"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dimen_60"
+        android:background="@android:color/transparent"
+        android:hint="@string/msg_hint_search"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:paddingEnd="@dimen/dimen_20"
+        android:paddingStart="@dimen/dimen_20"
+        app:layout_constraintEnd_toStartOf="@id/image_search"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/image_search"
+        android:layout_width="@dimen/dimen_24"
+        android:layout_height="@dimen/dimen_24"
+        android:layout_centerVertical="true"
+        android:layout_margin="@dimen/dimen_15"
+        android:src="@drawable/ic_search_black_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/view_under_line"
+        android:layout_width="@dimen/dimen_0"
+        android:layout_height="@dimen/dimen_0_5dp"
+        android:background="@drawable/under_line"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_search" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_suggest"
+        android:layout_width="@dimen/dimen_0"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_10"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_key_hot" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_search"
+        android:layout_width="@dimen/dimen_0"
+        android:layout_height="@dimen/dimen_0dp"
+        android:layout_margin="@dimen/dimen_10"
+        android:visibility="gone"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_under_line" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycler_suggest" />
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:id="@+id/text_key_hot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_margin="@dimen/dimen_10"
+        android:text="@string/msg_hot_key"
+        android:textAllCaps="true"
+        android:textColor="@color/color_black"
+        android:textSize="@dimen/dimen_text_18"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_under_line" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/text_recent_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_margin="@dimen/dimen_10"
+        android:text="@string/msg_history_search"
+        android:textAllCaps="true"
+        android:textColor="@color/color_black"
+        android:textSize="@dimen/dimen_text_18"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycler_suggest" />
+
+    <TextView
+        android:id="@+id/text_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_margin="@dimen/dimen_10"
+        android:background="?attr/selectableItemBackground"
+        android:text="@string/msg_delete"
+        android:textSize="@dimen/dimen_text_14"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycler_suggest" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_recent"
+        android:layout_width="@dimen/dimen_0"
+        android:layout_height="@dimen/dimen_0dp"
+        android:layout_margin="@dimen/dimen_10"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_recent_search" />
+
+</android.support.constraint.ConstraintLayout>

@@ -20,7 +20,7 @@ public class FragmentTransactionUtils {
         Fragment currentFragment = fragmentManager.findFragmentByTag(tag);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (currentFragment != null) {
-            showFragment(transaction, fragment);
+            showFragment(fragmentManager, transaction, fragment);
             return;
         }
         transaction.add(res, fragment, tag);
@@ -33,7 +33,10 @@ public class FragmentTransactionUtils {
         transaction.commit();
     }
 
-    private static void showFragment(FragmentTransaction transaction, Fragment fragment) {
+    private static void showFragment(FragmentManager fragmentManager, FragmentTransaction transaction, Fragment fragment) {
+        for (int i = 0; i < fragmentManager.getFragments().size(); i++) {
+            transaction.hide(fragmentManager.getFragments().get(i));
+        }
         transaction.show(fragment).commit();
     }
 }

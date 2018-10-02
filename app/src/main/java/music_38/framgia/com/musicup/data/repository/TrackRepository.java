@@ -31,4 +31,9 @@ public class TrackRepository implements TrackDataSource.RemoteDataSource,
     public void getGenre(Genre genre, Callback<Genre> callback) {
         mTrackRemoteDataSource.getGenre(genre, callback);
     }
+
+    @Override
+    public void getSearchTrack(String searchKey, Callback<Genre> callback) {
+        mTrackRemoteDataSource.getSearchTrack(searchKey, callback);
+    }
 }
