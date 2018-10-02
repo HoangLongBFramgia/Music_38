@@ -8,6 +8,8 @@ public interface TrackDataSource {
 
     interface RemoteDataSource {
         void getGenre(Genre genre, Callback<Genre> callback);
+
+        void getSearchTrack(String searchKey, Callback<Genre> callback);
     }
 
     interface LocalDataSource {

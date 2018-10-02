@@ -10,4 +10,8 @@
     <string name="title_blank">\t</string>
     <string name="title_song">songs</string>
     <string name="title_time_default">00:00</string>
+    <string name="msg_delete">xóa</string>
+    <string name="msg_history_search">Lịch sử tìm kiếm</string>
+    <string name="msg_hot_key">Từ khóa hot</string>
+    <string name="msg_hint_search">Nhập vào đây để tìm kiếm</string>
 </resources>

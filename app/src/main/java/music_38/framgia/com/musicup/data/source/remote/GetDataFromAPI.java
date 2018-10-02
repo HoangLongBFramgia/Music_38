@@ -50,4 +50,16 @@ public class GetDataFromAPI {
 
         return tracks;
     }
+
+    public static ArrayList<Track> getTrackSearch(String jsonString) throws JSONException {
+        ArrayList<Track> tracks = new ArrayList<>();
+        JSONObject root = new JSONObject(jsonString);
+        JSONArray collection = root.getJSONArray(Track.TrackJSON.COLLECTION);
+        for (int i = 0; i < collection.length(); i++) {
+            JSONObject jsonObject = collection.getJSONObject(i);
+            Track track = new Track(jsonObject);
+            tracks.add(track);
+        }
+        return tracks;
+    }
 }
