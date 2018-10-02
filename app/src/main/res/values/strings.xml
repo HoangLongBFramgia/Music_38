@@ -14,4 +14,5 @@
     <string name="msg_history_search">Lịch sử tìm kiếm</string>
     <string name="msg_hot_key">Từ khóa hot</string>
     <string name="msg_hint_search">Nhập vào đây để tìm kiếm</string>
+    <string name="msg_result_search">\t Kết quả tìm kiếm cho từ \t \"</string>
 </resources>

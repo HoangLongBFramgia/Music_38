@@ -1,7 +1,10 @@
 package music_38.framgia.com.musicup.screen.search;
 
 
+import java.util.ArrayList;
+
 import music_38.framgia.com.musicup.data.model.Genre;
+import music_38.framgia.com.musicup.data.model.RecentSearch;
 import music_38.framgia.com.musicup.data.repository.TrackRepository;
 import music_38.framgia.com.musicup.data.source.Callback;
 
@@ -15,7 +18,7 @@ public class SearchPresenter implements SearchContract.Presenter {
 
     @Override
     public void getTrackBySearch(String searchKey) {
-        mTrackRepository.getSearchTrack(searchKey, new Callback<Genre>() {
+        mTrackRepository.getGenre(searchKey, new Callback<Genre>() {
             @Override
             public void getDataSuccess(Genre data) {
                 mView.hideProgress();
@@ -28,6 +31,46 @@ public class SearchPresenter implements SearchContract.Presenter {
                 mView.getDataError(e);
             }
         });
+    }
+
+    @Override
+    public void getSuggests() {
+        mTrackRepository.getSuggest(new Callback<ArrayList<String>>() {
+            @Override
+            public void getDataSuccess(ArrayList<String> data) {
+                mView.onGetSuggestSuccess(data);
+            }
+
+            @Override
+            public void getDataFailure(Exception e) {
+                mView.onGetSuggestError(e);
+            }
+        });
+    }
+
+    @Override
+    public void getHistorySearch() {
+        mTrackRepository.getRecentSearch(new Callback<ArrayList<RecentSearch>>() {
+            @Override
+            public void getDataSuccess(ArrayList<RecentSearch> data) {
+                mView.onGetHistorySearchSuccess(data);
+            }
+
+            @Override
+            public void getDataFailure(Exception e) {
+                mView.onGetSuggestError(e);
+            }
+        });
+    }
+
+    @Override
+    public void deleteHistorySearch(RecentSearch recentSearch) {
+        mTrackRepository.deleteRecentSearch(recentSearch);
+    }
+
+    @Override
+    public void addHistorySearch(RecentSearch recentSearch) {
+        mTrackRepository.addRecentSearchToRealm(recentSearch);
     }
 
     @Override

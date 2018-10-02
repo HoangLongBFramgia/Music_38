@@ -40,7 +40,7 @@ public class TrackRemoteDataSource implements TrackDataSource.RemoteDataSource {
     }
 
     @Override
-    public void getSearchTrack(String searchKey, Callback<Genre> callback) {
+    public void getGenre(String searchKey, Callback<Genre> callback) {
         getTrackBySearch(searchKey, callback);
     }
 
