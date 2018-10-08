@@ -1,5 +1,6 @@
 package music_38.framgia.com.musicup.service;
 
+import android.app.DownloadManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,6 +9,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -30,11 +32,10 @@ import music_38.framgia.com.musicup.utils.SharedPrefs;
 
 import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
 
-public class SongService extends Service implements SongServiceContract.ISongService,UpdateNotification {
+public class SongService extends Service implements SongServiceContract.ISongService, UpdateNotification {
 
     public static final String EXTRA_LIST = "EXTRA_LIST";
     public static final String EXTRA_POSITION = "EXTRA_POSITION";
-    public static final String EXTRA_TYPE_TRACK = "EXTRA_TYPE_TRACK";
     public static final String ACTION_NEXT_TRACK = "ACTION_NEXT_TRACK";
     public static final String ACTION_PREVIOUS_TRACK = "ACTION_PREVIOUS_TRACK";
     public static final String ACTION_CHANGE_STATE = "ACTION_CHANGE_STATE";
@@ -49,9 +50,10 @@ public class SongService extends Service implements SongServiceContract.ISongSer
     private static final String PREF_STATE_ACTION = "PREF_STATE_ACTION";
     private final IBinder mSongBind = new SongBinder();
     private SongManager mSongManager;
-    private SongServiceContract.OnMediaPlayerChangeListener mOnMediaPlayerChangeListener;
     private RemoteViews mRemoteViews;
     private Notification mNotification;
+    private MusicIntentReceiver mMusicIntentReceiver;
+    private SongManager.DownloadReceiver mDownloadReceiver;
 
     public static Intent getIntentService(Context context, List<Track> tracks, int position) {
         if (context != null) {
@@ -63,10 +65,6 @@ public class SongService extends Service implements SongServiceContract.ISongSer
         return null;
     }
 
-    public static Intent getPlayerIntent(Context context) {
-        return new Intent(context, PlayActivity.class);
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -74,41 +72,68 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public int getDurationSong() {
+        if (mSongManager == null) {
+            return 0;
+        }
         return mSongManager.getDurationTrack();
     }
 
     @Override
     public int getCurrentDurationSong() {
+        if (mSongManager == null) {
+            return 0;
+        }
         return mSongManager.getCurrentDurationTrack();
     }
 
     @Override
     public void playPauseSong() {
+        if (mSongManager == null) {
+            return;
+        }
         mSongManager.playPauseSong();
+        updateNotificationState();
     }
 
     @Override
     public void play() {
+        if (mSongManager == null) {
+            return;
+        }
         mSongManager.play();
     }
 
     @Override
     public void previousSong() {
+        if (mSongManager == null) {
+            return;
+        }
         mSongManager.previousSong();
+        updateNotificationChangeTrack(mSongManager.getTrackCurrent());
     }
 
     @Override
     public void nextSong() {
+        if (mSongManager == null) {
+            return;
+        }
         mSongManager.nextSong();
+        updateNotificationChangeTrack(mSongManager.getTrackCurrent());
     }
 
     @Override
     public void shuffleSong(int shuffleType) {
+        if (mSongManager == null) {
+            return;
+        }
         mSongManager.shuffleTrack(shuffleType);
     }
 
     @Override
     public void loopSong(int loopType) {
+        if (mSongManager == null) {
+            return;
+        }
         mSongManager.loopTrack(loopType);
     }
 
@@ -122,6 +147,9 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public void seekTo(int seekTo) {
+        if (mSongManager == null) {
+            return;
+        }
         mSongManager.seekTo(seekTo);
     }
 
@@ -134,22 +162,10 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public void favoritesSong(int state) {
-
-    }
-
-    @Override
-    public List<Track> getListTrack() {
-        return null;
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        return 0;
-    }
-
-    @Override
-    public int getTypeTrack() {
-        return 0;
+        if (mSongManager == null) {
+            return;
+        }
+        mSongManager.favoritesSong(state);
     }
 
     @Override
@@ -157,7 +173,6 @@ public class SongService extends Service implements SongServiceContract.ISongSer
         updateNotificationChangeTrack(track);
     }
 
-    //binder
     public class SongBinder extends Binder {
         public SongService getService() {
             return SongService.this;
@@ -165,7 +180,37 @@ public class SongService extends Service implements SongServiceContract.ISongSer
     }
 
     @Override
+    public List<Track> getListTrack() {
+        if (mSongManager == null) {
+            return null;
+        }
+        return mSongManager.getTracks();
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        return mSongManager.getSongPosition();
+    }
+
+    @Override
+    public int getTypeTrack() {
+        if (mSongManager == null) {
+            return 0;
+        }
+        return mSongManager.getTypeTrack();
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        mMusicIntentReceiver = new SongService.MusicIntentReceiver();
+        IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(mMusicIntentReceiver, filter);
+        mDownloadReceiver = new SongManager.DownloadReceiver();
+        IntentFilter filterDownLoad = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        IntentFilter filterDownLoad1 = new IntentFilter(DownloadManager.ACTION_NOTIFICATION_CLICKED);
+        registerReceiver(mDownloadReceiver, filterDownLoad);
+        registerReceiver(mDownloadReceiver, filterDownLoad1);
+
         if (intent != null) {
             List<Track> tracks = intent.getParcelableArrayListExtra(EXTRA_LIST);
             if (tracks != null) {
@@ -196,7 +241,7 @@ public class SongService extends Service implements SongServiceContract.ISongSer
                 }
             }
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Nullable
@@ -212,11 +257,31 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     @Override
     public void onDestroy() {
+        if (mMusicIntentReceiver != null) {
+            unregisterReceiver(mMusicIntentReceiver);
+        }
+        if (mDownloadReceiver != null) {
+            unregisterReceiver(mDownloadReceiver);
+        }
         stopForeground(true);
     }
 
     public SongServiceContract.ISongService getISongService() {
         return this;
+    }
+
+    public void setOnChangePlayNow(SongServiceContract.OnChangePlayNow onChangePlayNow) {
+        if (mSongManager == null) {
+            return;
+        }
+        mSongManager.setOnChangePlayNow(onChangePlayNow);
+    }
+
+    public void setOnMediaPlayerChangeListener(SongServiceContract.OnMediaPlayerChangeListener onMediaPlayerChangeListener) {
+        if (mSongManager == null) {
+            return;
+        }
+        mSongManager.setMediaPlayerChangeListener(onMediaPlayerChangeListener);
     }
 
     public void setOnMiniPlayerChangeListener(SongServiceContract.OnMiniPlayerChangeListener onMiniPlayerChangeListener) {
@@ -226,9 +291,11 @@ public class SongService extends Service implements SongServiceContract.ISongSer
         mSongManager.setMiniPlayerChangeListener(onMiniPlayerChangeListener);
     }
 
-    public void setOnMediaPlayerChangeListener(SongServiceContract.OnMediaPlayerChangeListener onMediaPlayerChangeListener) {
-        mOnMediaPlayerChangeListener = onMediaPlayerChangeListener;
-        mSongManager.setMediaPlayerChangeListener(onMediaPlayerChangeListener);
+    public void setOnChangeButtonMediaPlayer(SongServiceContract.OnChangeButtonMediaPlayer onChangeButtonMediaPlayer) {
+        if (mSongManager == null) {
+            return;
+        }
+        mSongManager.setOnChangeButtonMediaPlayer(onChangeButtonMediaPlayer);
     }
 
     public void createNotification(String title, String singer, String url) {
@@ -395,4 +462,5 @@ public class SongService extends Service implements SongServiceContract.ISongSer
             }
         }
     }
+
 }

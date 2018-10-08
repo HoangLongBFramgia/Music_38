@@ -1,11 +1,16 @@
 package music_38.framgia.com.musicup.service;
 
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.PowerManager;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +21,10 @@ import java.util.Random;
 import java.util.RandomAccess;
 
 import music_38.framgia.com.musicup.data.model.Track;
+import music_38.framgia.com.musicup.data.source.local.FavoritesMode;
+import music_38.framgia.com.musicup.data.source.local.TypeTrack;
+import music_38.framgia.com.musicup.data.source.local.realm.RealmDownloadSong;
+import music_38.framgia.com.musicup.data.source.local.realm.RealmFavoritesSong;
 import music_38.framgia.com.musicup.data.source.remote.TrackRemoteDataSource;
 
 import static music_38.framgia.com.musicup.data.source.local.DownloadMode.DOWNLOAD_ABLE;
@@ -27,19 +36,22 @@ import static music_38.framgia.com.musicup.service.ShuffleMode.NO_SHUFFLE;
 import static music_38.framgia.com.musicup.service.ShuffleMode.SHUFFLE_ALL;
 
 public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnCompletionListener {
+        MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener {
 
     private static MediaPlayer mMediaPlayer;
     private Context mContext;
     private SongServiceContract.OnMediaPlayerChangeListener mMediaPlayerChangeListener;
     private SongServiceContract.OnMiniPlayerChangeListener mMiniPlayerChangeListener;
+    private SongServiceContract.OnChangePlayNow mOnChangePlayNow;
     private SongServiceContract.OnChangeButtonMediaPlayer mOnChangeButtonMediaPlayer;
+    private UpdateNotification mUpdateNotification;
     private static List<Track> mTracks;
     private List<Track> mUnShuffleTracks;
     private static int mSongPosition;
     private boolean isPlaying;
     private int mLoopType;
-    private UpdateNotification mUpdateNotification;
+    private int mTypeTrack;
+    private static long downloadID;
     public static final String FILE_DIR = "file://\" + \"/sdcard/";
     public static final String DES_FILE_DOWNLOAD = "SoundClound";
     public static final String MP3_FORMAT = ".mp3";
@@ -50,6 +62,14 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         mTracks = tracks;
         mUnShuffleTracks = new ArrayList<>();
         mUnShuffleTracks.addAll(mTracks);
+    }
+
+    void setUpdateNotification(UpdateNotification updateNotification) {
+        mUpdateNotification = updateNotification;
+    }
+
+    int getTypeTrack() {
+        return mTypeTrack;
     }
 
     public List<Track> getTracks() {
@@ -66,6 +86,14 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
 
     void setMiniPlayerChangeListener(SongServiceContract.OnMiniPlayerChangeListener miniPlayerChangeListener) {
         mMiniPlayerChangeListener = miniPlayerChangeListener;
+    }
+
+    void setOnChangePlayNow(SongServiceContract.OnChangePlayNow onChangePlayNow) {
+        mOnChangePlayNow = onChangePlayNow;
+    }
+
+    void setOnChangeButtonMediaPlayer(SongServiceContract.OnChangeButtonMediaPlayer onChangeButtonMediaPlayer) {
+        mOnChangeButtonMediaPlayer = onChangeButtonMediaPlayer;
     }
 
     void playPauseSong() {
@@ -126,21 +154,31 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         if (mMediaPlayer != null) {
             destroyMediaPlayer();
         }
-        mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            mMediaPlayer.setDataSource(urlStream);
+            mMediaPlayer = new MediaPlayer();
+            mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            if (track.getTypeTrack() == 0) {
+                mMediaPlayer.setDataSource(mContext, Uri.parse(track.getDownloadURL()));
+            } else {
+                mMediaPlayer.setDataSource(urlStream);
+            }
+            mMediaPlayer.setOnPreparedListener(this);
+            mMediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mMediaPlayer.setOnPreparedListener(this);
-        mMediaPlayer.prepareAsync();
         if (mMediaPlayerChangeListener != null) {
             mMediaPlayerChangeListener.onTrackChange(track);
         }
         if (mMiniPlayerChangeListener != null) {
             mMiniPlayerChangeListener.onTrackChange(track);
+        }
+        if (mOnChangePlayNow != null) {
+            mOnChangePlayNow.onTrackChange(track, mSongPosition);
+        }
+        if (mOnChangeButtonMediaPlayer != null) {
+            mOnChangeButtonMediaPlayer.onTrackChange(track);
         }
     }
 
@@ -243,6 +281,9 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         if (mMediaPlayerChangeListener != null) {
             mMediaPlayerChangeListener.onShuffleChange(shuffleType);
         }
+        if (mOnChangePlayNow != null) {
+            mOnChangePlayNow.onListChange(mTracks);
+        }
     }
 
     private void unShuffle() {
@@ -262,10 +303,6 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
     public void onPrepared(MediaPlayer mediaPlayer) {
         mediaPlayer.start();
         mMediaPlayer.setOnCompletionListener(this);
-    }
-
-    void setUpdateNotification(UpdateNotification updateNotification) {
-        mUpdateNotification = updateNotification;
     }
 
     private void shuffleList(List<Track> list, Random random) {
@@ -292,17 +329,6 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         }
         mTracks = new ArrayList<>();
         mTracks.addAll(trackSwap);
-    }
-
-    @Override
-    public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-        nextSong();
-        return true;
-    }
-
-    @Override
-    public void onCompletion(MediaPlayer mediaPlayer) {
-        checkLoopMode();
     }
 
     void downloadCurrentTrack(int state) {
@@ -338,5 +364,72 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         request.setDestinationUri(Uri.parse(stringDir));
         assert downloadManager != null;
         downloadManager.enqueue(request);
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+        nextSong();
+        return true;
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        checkLoopMode();
+        if (mUpdateNotification == null) {
+            return;
+        }
+        mUpdateNotification.onUpdateWhenTrackComplete(getTrackCurrent());
+    }
+
+    @Override
+    public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
+    }
+
+    void favoritesSong(int favorites) {
+        switch (favorites) {
+            case FavoritesMode.FAVORITES:
+                RealmFavoritesSong.addFavorites(mTracks.get(mSongPosition));
+                break;
+            case FavoritesMode.UN_FAVORITES:
+                RealmFavoritesSong.deleteFavorites(mTracks.get(mSongPosition));
+                break;
+        }
+        mOnChangeButtonMediaPlayer.onFavoritesChange(favorites);
+    }
+
+    public static class DownloadReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() == null) {
+                return;
+            }
+            if (intent.getAction().equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
+                DownloadManager.Query query = new DownloadManager.Query();
+                query.setFilterById(intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0));
+                DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                Cursor cursor = manager.query(query);
+                if (cursor.moveToFirst()) {
+                    if (cursor.getCount() > 0) {
+                        int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                        if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                            Track currentTrack = mTracks.get(mSongPosition);
+                            String FILE_PATH = Environment.getExternalStorageDirectory()
+                                    .getPath() + "/" + DES_FILE_DOWNLOAD + "/" + currentTrack.getTitle() + MP3_FORMAT;
+                            Track newTrack = new Track(
+                                    currentTrack.getId(),
+                                    currentTrack.getDuration(),
+                                    currentTrack.getTitle(),
+                                    currentTrack.getArtist(),
+                                    currentTrack.getArtworkUrl(),
+                                    FILE_PATH, TypeTrack.TYPE_OFFLINE);
+                            RealmDownloadSong.addDownload(newTrack);
+                        } else {
+                            Log.d("TAG!", "onReceive: " + "FAILED");
+                        }
+                    }
+                }
+            }
+        }
     }
 }

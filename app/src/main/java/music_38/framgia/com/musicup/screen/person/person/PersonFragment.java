@@ -15,12 +15,10 @@ import music_38.framgia.com.musicup.screen.download.DownloadFragment;
 import music_38.framgia.com.musicup.screen.favorites.FavoritesFragment;
 import music_38.framgia.com.musicup.screen.offline.OfflineFragment;
 import music_38.framgia.com.musicup.screen.playlist.PlayListFragment;
-import music_38.framgia.com.musicup.screen.playlistfavorites.FavoritesPlayListFragment;
 import music_38.framgia.com.musicup.utils.FragmentTransactionUtils;
 
 public class PersonFragment extends BaseFragment implements PersonContract.View, View.OnClickListener, FavoritesPlayListAdapter.OnItemPlaylistClickListener {
 
-    public static final String TAG = music_38.framgia.com.musicup.screen.person.PersonFragment.class.getName();
     private RecyclerView mRecyclerFavoritesPlaylist;
     private TextView mTextOffline;
     private TextView mTextFavorites;
@@ -104,12 +102,12 @@ public class PersonFragment extends BaseFragment implements PersonContract.View,
 
     @Override
     public void onItemPlaylistClick(GenreSave genreSave) {
-        FavoritesPlayListFragment fragment = FavoritesPlayListFragment.newInstance(genreSave);
-        FragmentTransactionUtils.addFragment(
-                getFragmentManager(),
-                fragment,
-                R.id.container_full,
-                FavoritesPlayListFragment.TAG, true,
-                R.anim.anim_slide_in_bottom, R.anim.anim_slide_out_top);
+//        FavoritesPlayListFragment fragment = FavoritesPlayListFragment.newInstance(genreSave);
+//        FragmentTransactionUtils.addFragment(
+//                getFragmentManager(),
+//                fragment,
+//                R.id.container_full,
+//                FavoritesPlayListFragment.TAG, true,
+//                R.anim.anim_slide_in_bottom, R.anim.anim_slide_out_top);
     }
 }
