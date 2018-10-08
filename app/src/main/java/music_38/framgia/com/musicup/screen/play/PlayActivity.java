@@ -125,6 +125,10 @@ public class PlayActivity extends BaseActivity implements View.OnClickListener
         initListener();
     }
 
+    public static Intent getPlayerIntent(Context context) {
+        return new Intent(context, PlayActivity.class);
+    }
+
     private void initListener() {
         mImageClose.setOnClickListener(this);
         mImageLoop.setOnClickListener(this);
