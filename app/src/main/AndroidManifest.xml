@@ -28,7 +28,6 @@
         <activity android:name=".screen.play.PlayActivity" />
 
         <service android:name=".service.SongService" />
-
     </application>
 
 </manifest>

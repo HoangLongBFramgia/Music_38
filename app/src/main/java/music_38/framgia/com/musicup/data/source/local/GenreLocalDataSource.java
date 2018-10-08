@@ -12,8 +12,17 @@ public class GenreLocalDataSource implements TrackDataSource.LocalDataSource {
         new GenreLocalAsyncTask(callback).execute();
     }
 
+    private void getAllSuggest(Callback<ArrayList<String>> callback) {
+        new SuggestLocalAsyncTask(callback).execute();
+    }
+
     @Override
     public void getGenre(Callback<ArrayList<Genre>> callback) {
         getAllGenre(callback);
+    }
+
+    @Override
+    public void getSuggest(Callback<ArrayList<String>> callback) {
+        getAllSuggest(callback);
     }
 }
