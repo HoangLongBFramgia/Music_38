@@ -235,4 +235,30 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
     @Override
     public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
     }
+
+    boolean isPlaying() {
+        return mMediaPlayer.isPlaying();
+    }
+
+    void pauseTrack() {
+        if (mMediaPlayer == null) {
+            return;
+        }
+        if (mMediaPlayerChangeListener != null) {
+            mMediaPlayerChangeListener.onMediaStateChange(false);
+        }
+        mMediaPlayer.pause();
+        isPlaying = true;
+    }
+
+    void resumeTrack() {
+        if (mMediaPlayer == null) {
+            return;
+        }
+        if (mMediaPlayerChangeListener != null) {
+            mMediaPlayerChangeListener.onMediaStateChange(true);
+        }
+        mMediaPlayer.start();
+        isPlaying = false;
+    }
 }

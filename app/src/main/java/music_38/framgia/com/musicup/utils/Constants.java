@@ -5,15 +5,12 @@ import music_38.framgia.com.musicup.R;
 public class Constants {
 
     public class Genre {
-        public static final String BUNDLE_GENRE = "TYPE_GENRE";
         public static final String ALL_MUSIC = "All Music";
         public static final String ALL_AUDIO = "All Audio";
         public static final String ALTERNATIVE_ROCK = "Alternative Rock";
         public static final String AMBIENT = "Ambient";
         public static final String CLASSICAL = "Classical";
         public static final String COUNTRY = "Country";
-        public static final String MINUS = "-";
-        public static final String SPACE = " ";
         public static final int IMAGE_ALL_MUSIC
                 = R.drawable.image_all_music;
         public static final int IMAGE_ALL_AUDIO
@@ -26,6 +23,14 @@ public class Constants {
                 = R.drawable.image_ambient;
         public static final int IMAGE_CLASSICAL
                 = R.drawable.image_all_music;
+    }
+
+    public class SuggestKey {
+        public static final String SUGGEST_1 = "Sơn Tùng";
+        public static final String SUGGEST_2 = "Lạc trôi";
+        public static final String SUGGEST_3 = "Người lạ ơi";
+        public static final String SUGGEST_4 = "Sau tất cả";
+        public static final String SUGGEST_5 = "Khu tao sống";
     }
 
     public class SoundCloud {

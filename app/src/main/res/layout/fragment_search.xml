@@ -40,26 +40,62 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edit_search" />
 
+    <android.support.constraint.Group
+        android:id="@+id/constraint_group_search"
+        android:layout_width="@dimen/dimen_0"
+        android:layout_height="@dimen/dimen_0"
+        android:visibility="visible"
+        app:constraint_referenced_ids="recycler_suggest,
+        text_key_hot,text_recent_search,text_remove,recycler_recent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_under_line" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_suggest"
         android:layout_width="@dimen/dimen_0"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/dimen_10"
+        android:orientation="horizontal"
+        app:layoutManager="android.support.v7.widget.StaggeredGridLayoutManager"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_key_hot" />
+        app:layout_constraintTop_toBottomOf="@id/text_key_hot"
+        app:spanCount="2" />
+
+    <android.support.constraint.Group
+        android:id="@+id/constraint_group_result_search"
+        android:layout_width="@dimen/dimen_0"
+        android:layout_height="@dimen/dimen_0"
+        android:visibility="gone"
+        app:constraint_referenced_ids="text_number_result,recycler_search"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_under_line" />
+
+    <TextView
+        android:id="@+id/text_number_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_10"
+        android:textSize="@dimen/dimen_text_14"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_under_line" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_search"
         android:layout_width="@dimen/dimen_0"
         android:layout_height="@dimen/dimen_0dp"
         android:layout_margin="@dimen/dimen_10"
-        android:visibility="gone"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view_under_line" />
+        app:layout_constraintTop_toBottomOf="@+id/text_number_result" />
 
     <ProgressBar
         android:id="@+id/progress_bar"
