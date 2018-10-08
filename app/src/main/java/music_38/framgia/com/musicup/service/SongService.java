@@ -30,7 +30,7 @@ import music_38.framgia.com.musicup.utils.SharedPrefs;
 
 import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
 
-public class SongService extends Service implements SongServiceContract.ISongService {
+public class SongService extends Service implements SongServiceContract.ISongService,UpdateNotification {
 
     public static final String EXTRA_LIST = "EXTRA_LIST";
     public static final String EXTRA_POSITION = "EXTRA_POSITION";
@@ -136,6 +136,11 @@ public class SongService extends Service implements SongServiceContract.ISongSer
     public void favoritesSong() {
     }
 
+    @Override
+    public void onUpdateWhenTrackComplete(Track track) {
+        updateNotificationChangeTrack(track);
+    }
+
     //binder
     public class SongBinder extends Binder {
         public SongService getService() {
@@ -150,7 +155,29 @@ public class SongService extends Service implements SongServiceContract.ISongSer
             if (tracks != null) {
                 int position = intent.getIntExtra(EXTRA_POSITION, 0);
                 mSongManager = new SongManager(getApplicationContext(), tracks, position);
+                createNotification(tracks.get(position).getTitle(), tracks.get(position).getArtist(),
+                        tracks.get(position).getArtworkUrl());
+                mSongManager.setUpdateNotification(this);
                 mSongManager.play();
+            }
+
+            String action = intent.getAction();
+            if (action != null) {
+                switch (action) {
+                    case ACTION_NEXT_TRACK:
+                        nextSong();
+                        break;
+                    case ACTION_PREVIOUS_TRACK:
+                        previousSong();
+                        break;
+                    case ACTION_CHANGE_STATE:
+                        playPauseSong();
+                        break;
+                    case ACTION_MEDIA_CLEAR:
+                        mSongManager.playPauseSong();
+                        stopForeground(true);
+                        break;
+                }
             }
         }
         return START_STICKY;
@@ -174,6 +201,13 @@ public class SongService extends Service implements SongServiceContract.ISongSer
 
     public SongServiceContract.ISongService getISongService() {
         return this;
+    }
+
+    public void setOnMiniPlayerChangeListener(SongServiceContract.OnMiniPlayerChangeListener onMiniPlayerChangeListener) {
+        if (mSongManager == null) {
+            return;
+        }
+        mSongManager.setMiniPlayerChangeListener(onMiniPlayerChangeListener);
     }
 
     public void setOnMediaPlayerChangeListener(SongServiceContract.OnMediaPlayerChangeListener onMediaPlayerChangeListener) {

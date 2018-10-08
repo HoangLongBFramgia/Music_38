@@ -22,40 +22,90 @@ import static music_38.framgia.com.musicup.service.ShuffleMode.NO_SHUFFLE;
 import static music_38.framgia.com.musicup.service.ShuffleMode.SHUFFLE_ALL;
 
 public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener {
+        MediaPlayer.OnCompletionListener {
 
-    private MediaPlayer mMediaPlayer;
+    private static MediaPlayer mMediaPlayer;
     private Context mContext;
     private SongServiceContract.OnMediaPlayerChangeListener mMediaPlayerChangeListener;
+    private SongServiceContract.OnMiniPlayerChangeListener mMiniPlayerChangeListener;
     private List<Track> mTracks;
     private List<Track> mUnShuffleTracks;
     private int mSongPosition;
     private boolean isPlaying;
     private int mLoopType;
-    private int mShuffle;
+    private UpdateNotification mUpdateNotification;
 
-    public SongManager(Context context, List<Track> tracks, int position) {
-        this.mContext = context;
-        this.mSongPosition = position;
-        this.mTracks = tracks;
+    SongManager(Context context, List<Track> tracks, int position) {
+        mContext = context;
+        mSongPosition = position;
+        mTracks = tracks;
         mUnShuffleTracks = new ArrayList<>();
         mUnShuffleTracks.addAll(mTracks);
-        this.mMediaPlayer = new MediaPlayer();
     }
 
-    public void setMediaPlayerChangeListener(SongServiceContract.OnMediaPlayerChangeListener mediaPlayerChangeListener) {
+    public List<Track> getTracks() {
+        return mTracks;
+    }
+
+    int getSongPosition() {
+        return mSongPosition;
+    }
+
+    void setMediaPlayerChangeListener(SongServiceContract.OnMediaPlayerChangeListener mediaPlayerChangeListener) {
         mMediaPlayerChangeListener = mediaPlayerChangeListener;
     }
 
-    public void playPauseSong() {
+    void setMiniPlayerChangeListener(SongServiceContract.OnMiniPlayerChangeListener miniPlayerChangeListener) {
+        mMiniPlayerChangeListener = miniPlayerChangeListener;
+    }
+
+    void playPauseSong() {
         if (isPlaying) {
-            mMediaPlayerChangeListener.onMediaStateChange(true);
+            if (mMediaPlayerChangeListener != null) {
+                mMediaPlayerChangeListener.onMediaStateChange(true);
+            }
+            if (mMiniPlayerChangeListener != null) {
+                mMiniPlayerChangeListener.onMediaStateChange(true);
+            }
             mMediaPlayer.start();
         } else {
-            mMediaPlayerChangeListener.onMediaStateChange(false);
+            if (mMediaPlayerChangeListener != null) {
+                mMediaPlayerChangeListener.onMediaStateChange(false);
+            }
+            if (mMiniPlayerChangeListener != null) {
+                mMiniPlayerChangeListener.onMediaStateChange(false);
+            }
             mMediaPlayer.pause();
         }
         isPlaying = !isPlaying;
+    }
+
+    void resumeTrack() {
+        if (mMediaPlayer == null) {
+            return;
+        }
+        if (mMediaPlayerChangeListener != null) {
+            mMediaPlayerChangeListener.onMediaStateChange(true);
+        }
+        if (mMiniPlayerChangeListener != null) {
+            mMiniPlayerChangeListener.onMediaStateChange(true);
+        }
+        mMediaPlayer.start();
+        isPlaying = false;
+    }
+
+    void pauseTrack() {
+        if (mMediaPlayer == null) {
+            return;
+        }
+        if (mMediaPlayerChangeListener != null) {
+            mMediaPlayerChangeListener.onMediaStateChange(false);
+        }
+        if (mMiniPlayerChangeListener != null) {
+            mMiniPlayerChangeListener.onMediaStateChange(false);
+        }
+        mMediaPlayer.pause();
+        isPlaying = true;
     }
 
     public void play() {
@@ -65,54 +115,57 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         }
         String urlStream = TrackRemoteDataSource.getStreamUrl(track.getId());
         if (mMediaPlayer != null) {
-            destroyMediaPlayer(mMediaPlayer);
+            destroyMediaPlayer();
         }
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setDataSource(urlStream);
-            mMediaPlayer.prepareAsync();
-            mMediaPlayer.setOnPreparedListener(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        mMediaPlayer.setOnPreparedListener(this);
+        mMediaPlayer.prepareAsync();
         if (mMediaPlayerChangeListener != null) {
-            mMediaPlayerChangeListener.onTrackChange(mTracks.get(mSongPosition));
+            mMediaPlayerChangeListener.onTrackChange(track);
+        }
+        if (mMiniPlayerChangeListener != null) {
+            mMiniPlayerChangeListener.onTrackChange(track);
         }
     }
 
-    private void destroyMediaPlayer(MediaPlayer mediaPlayer) {
-        mediaPlayer.pause();
-        mediaPlayer.reset();
-        mediaPlayer.release();
-    }
-
-    public Track getTrackCurrent() {
-        return mTracks.get(mSongPosition);
-    }
-
-    public int getCurrentDurationTrack() {
-        return mMediaPlayer.getCurrentPosition();
-    }
-
-    public int getDurationTrack() {
-        return mMediaPlayer.getDuration();
-    }
-
-    public void stop() {
-        mMediaPlayer.stop();
-    }
-
-    public void release() {
+    private void destroyMediaPlayer() {
+        mMediaPlayer.pause();
+        mMediaPlayer.reset();
         mMediaPlayer.release();
     }
 
-    public void seekTo(int seekTo) {
+    boolean isPlaying() {
+        return mMediaPlayer.isPlaying();
+    }
+
+    Track getTrackCurrent() {
+        return mTracks.get(mSongPosition);
+    }
+
+    int getCurrentDurationTrack() {
+        return mMediaPlayer.getCurrentPosition();
+    }
+
+    int getDurationTrack() {
+        return mMediaPlayer.getDuration();
+    }
+
+    private void stop() {
+        mMediaPlayer.stop();
+    }
+
+    void seekTo(int seekTo) {
         mMediaPlayer.seekTo(seekTo);
     }
 
-    public void nextSong() {
+    void nextSong() {
         mSongPosition++;
         if (mSongPosition >= mTracks.size()) {
             mSongPosition = 0;
@@ -120,7 +173,7 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         play();
     }
 
-    public void previousSong() {
+    void previousSong() {
         mSongPosition--;
         if (mSongPosition < 0) {
             mSongPosition = mTracks.size() - 1;
@@ -128,8 +181,11 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         play();
     }
 
-    public void loopTrack(int loopType) {
+    void loopTrack(int loopType) {
         mLoopType = loopType;
+        if (mMediaPlayerChangeListener == null) {
+            return;
+        }
         mMediaPlayerChangeListener.onLoopChange(loopType);
     }
 
@@ -159,13 +215,14 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
         }
     }
 
-    public void shuffleTrack(int shuffleType) {
-        mMediaPlayerChangeListener.onShuffleChange(shuffleType);
+    void shuffleTrack(int shuffleType) {
+        if (mMediaPlayerChangeListener != null) {
+            mMediaPlayerChangeListener.onShuffleChange(shuffleType);
+        }
         checkShuffleMode(shuffleType);
     }
 
     private void checkShuffleMode(int shuffleType) {
-        mShuffle = shuffleType;
         switch (shuffleType) {
             case SHUFFLE_ALL:
                 shuffle();
@@ -174,7 +231,9 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
                 unShuffle();
                 break;
         }
-        mMediaPlayerChangeListener.onShuffleChange(mShuffle);
+        if (mMediaPlayerChangeListener != null) {
+            mMediaPlayerChangeListener.onShuffleChange(shuffleType);
+        }
     }
 
     private void unShuffle() {
@@ -194,6 +253,10 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
     public void onPrepared(MediaPlayer mediaPlayer) {
         mediaPlayer.start();
         mMediaPlayer.setOnCompletionListener(this);
+    }
+
+    void setUpdateNotification(UpdateNotification updateNotification) {
+        mUpdateNotification = updateNotification;
     }
 
     private void shuffleList(List<Track> list, Random random) {
@@ -224,41 +287,12 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
 
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+        nextSong();
         return true;
     }
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         checkLoopMode();
-    }
-
-    @Override
-    public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
-    }
-
-    boolean isPlaying() {
-        return mMediaPlayer.isPlaying();
-    }
-
-    void pauseTrack() {
-        if (mMediaPlayer == null) {
-            return;
-        }
-        if (mMediaPlayerChangeListener != null) {
-            mMediaPlayerChangeListener.onMediaStateChange(false);
-        }
-        mMediaPlayer.pause();
-        isPlaying = true;
-    }
-
-    void resumeTrack() {
-        if (mMediaPlayer == null) {
-            return;
-        }
-        if (mMediaPlayerChangeListener != null) {
-            mMediaPlayerChangeListener.onMediaStateChange(true);
-        }
-        mMediaPlayer.start();
-        isPlaying = false;
     }
 }

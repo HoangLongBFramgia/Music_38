@@ -12,7 +12,7 @@ import music_38.framgia.com.musicup.data.source.remote.TrackRemoteDataSource;
 
 public class TrackRepository implements
         GenreDataSource.LocalDataSource, GenreDataSource.RemoteDataSource
-        ,TrackDataSource.LocalDataSource,TrackDataSource.RemoteDataSource {
+        , TrackDataSource.LocalDataSource, TrackDataSource.RemoteDataSource {
 
     private GenreLocalDataSource mGenreLocalDataSource;
     private TrackRemoteDataSource mTrackRemoteDataSource;
@@ -43,6 +43,6 @@ public class TrackRepository implements
 
     @Override
     public void getTrackSearch(String searchKey, Callback<Genre> callback) {
-        mTrackRemoteDataSource.getTrackSearch(searchKey,callback);
+        mTrackRemoteDataSource.getTrackSearch(searchKey, callback);
     }
 }
