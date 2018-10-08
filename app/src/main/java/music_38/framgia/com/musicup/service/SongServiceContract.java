@@ -51,4 +51,10 @@ public class SongServiceContract {
 
         void onFavoritesChange(int state);
     }
+
+    public interface OnMiniPlayerChangeListener {
+        void onMediaStateChange(boolean isPlaying);
+
+        void onTrackChange(Track track);
+    }
 }
