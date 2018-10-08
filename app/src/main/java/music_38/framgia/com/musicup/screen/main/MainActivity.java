@@ -25,7 +25,6 @@ import music_38.framgia.com.musicup.R;
 import music_38.framgia.com.musicup.data.model.Track;
 import music_38.framgia.com.musicup.screen.base.BaseActivity;
 import music_38.framgia.com.musicup.screen.home.HomeFragment;
-import music_38.framgia.com.musicup.screen.person.PersonFragment;
 import music_38.framgia.com.musicup.screen.play.PlayActivity;
 import music_38.framgia.com.musicup.screen.search.SearchFragment;
 import music_38.framgia.com.musicup.service.SongService;

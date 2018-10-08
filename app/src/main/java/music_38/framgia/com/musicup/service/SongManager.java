@@ -1,10 +1,13 @@
 package music_38.framgia.com.musicup.service;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.PowerManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +18,8 @@ import java.util.RandomAccess;
 import music_38.framgia.com.musicup.data.model.Track;
 import music_38.framgia.com.musicup.data.source.remote.TrackRemoteDataSource;
 
+import static music_38.framgia.com.musicup.data.source.local.DownloadMode.DOWNLOAD_ABLE;
+import static music_38.framgia.com.musicup.data.source.local.DownloadMode.DOWNLOAD_DISABLE;
 import static music_38.framgia.com.musicup.service.LoopMode.LOOP_ALL;
 import static music_38.framgia.com.musicup.service.LoopMode.LOOP_ONE;
 import static music_38.framgia.com.musicup.service.LoopMode.NO_LOOP;
@@ -28,12 +33,16 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
     private Context mContext;
     private SongServiceContract.OnMediaPlayerChangeListener mMediaPlayerChangeListener;
     private SongServiceContract.OnMiniPlayerChangeListener mMiniPlayerChangeListener;
+    private SongServiceContract.OnChangeButtonMediaPlayer mOnChangeButtonMediaPlayer;
     private static List<Track> mTracks;
     private List<Track> mUnShuffleTracks;
     private static int mSongPosition;
     private boolean isPlaying;
     private int mLoopType;
     private UpdateNotification mUpdateNotification;
+    public static final String FILE_DIR = "file://\" + \"/sdcard/";
+    public static final String DES_FILE_DOWNLOAD = "SoundClound";
+    public static final String MP3_FORMAT = ".mp3";
 
     SongManager(Context context, List<Track> tracks, int position) {
         mContext = context;
@@ -294,5 +303,40 @@ public class SongManager implements MediaPlayer.OnErrorListener, MediaPlayer.OnP
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         checkLoopMode();
+    }
+
+    void downloadCurrentTrack(int state) {
+        switch (state) {
+            case DOWNLOAD_DISABLE:
+                downloadSong(getTrackCurrent());
+                break;
+            case DOWNLOAD_ABLE:
+                break;
+        }
+        mOnChangeButtonMediaPlayer.onDownLoadChange(state);
+    }
+
+    private void downloadSong(Track track) {
+        DownloadManager downloadManager =
+                (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+        Uri uriStream = Uri.parse(
+                TrackRemoteDataSource.getStreamUrl(track.getId()));
+        File newFolder = new File(FILE_DIR + DES_FILE_DOWNLOAD);
+        if (!newFolder.exists()) {
+            newFolder.mkdir();
+        }
+        String stringDir = FILE_DIR
+                + DES_FILE_DOWNLOAD
+                + "/"
+                + track.getTitle()
+                + MP3_FORMAT;
+        DownloadManager.Request request = new DownloadManager.Request(uriStream);
+        request.setTitle(track.getTitle());
+        request.setDescription(track.getArtist());
+        request.setNotificationVisibility(
+                DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationUri(Uri.parse(stringDir));
+        assert downloadManager != null;
+        downloadManager.enqueue(request);
     }
 }

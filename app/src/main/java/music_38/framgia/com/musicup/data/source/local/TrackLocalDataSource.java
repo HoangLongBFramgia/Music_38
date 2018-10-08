@@ -23,7 +23,6 @@ public class TrackLocalDataSource implements TrackDataSource.LocalStorageDataSou
 
     @Override
     public void getTrackLocal(Callback<List<Track>> callBack) {
-        new GetTrackFromStorage(mContext, callBack).getSongLocal();
     }
 
     @Override
@@ -33,6 +32,5 @@ public class TrackLocalDataSource implements TrackDataSource.LocalStorageDataSou
 
     @Override
     public void getTotalLocalMusic(Callback<Integer> callBack) {
-        new GetTrackFromStorage(mContext, callBack).getTotalSongLocal();
     }
 }

@@ -6,8 +6,13 @@ import android.os.Parcelable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Track implements Parcelable {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+import music_38.framgia.com.musicup.data.source.local.TypeTrack;
 
+public class Track extends RealmObject implements Parcelable {
+
+    @PrimaryKey
     private int mId;
     private int mDuration;
     private String mTitle;
@@ -16,6 +21,30 @@ public class Track implements Parcelable {
     private String mDownloadURL;
     private String mArtist;
     private boolean mDownloadable;
+    private boolean mDownloaded;
+    private boolean mIsCheck;
+    @TypeTrack
+    private int mTypeTrack;
+
+    public Track() {
+    }
+
+    public Track(int id, int duration, String title, String artist, String artworkUrl, String downloadURL, int typeTrack) {
+        mId = id;
+        mDuration = duration;
+        mTitle = title;
+        mArtist = artist;
+        mDownloadURL = downloadURL;
+        mArtworkUrl = artworkUrl;
+        mTypeTrack = typeTrack;
+    }
+
+    public Track(String title, String downloadURL, String artist, boolean downloadable) {
+        mTitle = title;
+        mDownloadURL = downloadURL;
+        mArtist = artist;
+        mDownloadable = downloadable;
+    }
 
     public Track(JSONObject jsonObject) throws JSONException {
         this.mId = jsonObject.getInt(TrackJSON.ID);
@@ -36,8 +65,10 @@ public class Track implements Parcelable {
         this.mDuration = trackBuilder.mDuration;
         this.mGenre = trackBuilder.mGenre;
         this.mDownloadable = trackBuilder.mDownloadable;
+        this.mDownloaded = trackBuilder.mDownloaded;
         this.mDownloadURL = trackBuilder.mDownloadURL;
         this.mArtist = trackBuilder.mArtist;
+        this.mTypeTrack = trackBuilder.mTypeTrack;
     }
 
     private Track(Parcel in) {
@@ -47,8 +78,10 @@ public class Track implements Parcelable {
         mDuration = in.readInt();
         mGenre = in.readString();
         mDownloadable = in.readByte() != 0;
+        mDownloaded = in.readByte() != 0;
         mDownloadURL = in.readString();
         mArtist = in.readString();
+        mTypeTrack = in.readInt();
     }
 
     public static final Creator<Track> CREATOR = new Creator<Track>() {
@@ -76,8 +109,10 @@ public class Track implements Parcelable {
         parcel.writeInt(mDuration);
         parcel.writeString(mGenre);
         parcel.writeByte((byte) (mDownloadable ? 1 : 0));
+        parcel.writeByte((byte) (mDownloaded ? 1 : 0));
         parcel.writeString(mDownloadURL);
         parcel.writeString(mArtist);
+        parcel.writeInt(mTypeTrack);
     }
 
     public static class TrackBuilder {
@@ -87,8 +122,10 @@ public class Track implements Parcelable {
         private int mDuration;
         private String mGenre;
         private boolean mDownloadable;
+        private boolean mDownloaded;
         private String mDownloadURL;
         private String mArtist;
+        private int mTypeTrack;
 
         public TrackBuilder setId(int id) {
             mId = id;
@@ -127,6 +164,16 @@ public class Track implements Parcelable {
 
         public TrackBuilder setArtist(String artist) {
             mArtist = artist;
+            return this;
+        }
+
+        public TrackBuilder setDownloaded(boolean downloaded) {
+            mDownloaded = downloaded;
+            return this;
+        }
+
+        public TrackBuilder setTypeTrack(int typeTrack) {
+            mTypeTrack = typeTrack;
             return this;
         }
 
@@ -199,6 +246,30 @@ public class Track implements Parcelable {
         mArtist = artist;
     }
 
+    public boolean isDownloaded() {
+        return mDownloaded;
+    }
+
+    public void setDownloaded(boolean downloaded) {
+        mDownloaded = downloaded;
+    }
+
+    public boolean isCheck() {
+        return mIsCheck;
+    }
+
+    public void setCheck(boolean check) {
+        mIsCheck = check;
+    }
+
+    public int getTypeTrack() {
+        return mTypeTrack;
+    }
+
+    public void setTypeTrack(int typeTrack) {
+        mTypeTrack = typeTrack;
+    }
+
     public class TrackJSON {
         private static final String ID = "id";
         private static final String TITLE = "title";
@@ -213,4 +284,5 @@ public class Track implements Parcelable {
         public static final String COLLECTION = "collection";
         public static final String TRACK = "track";
     }
+
 }

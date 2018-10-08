@@ -103,10 +103,6 @@ public class SongService extends Service implements SongServiceContract.ISongSer
     }
 
     @Override
-    public void nextSongMini() {
-    }
-
-    @Override
     public void shuffleSong(int shuffleType) {
         mSongManager.shuffleTrack(shuffleType);
     }
@@ -117,7 +113,11 @@ public class SongService extends Service implements SongServiceContract.ISongSer
     }
 
     @Override
-    public void downloadCurrentTrack() {
+    public void downloadCurrentTrack(int state) {
+        if (mSongManager == null) {
+            return;
+        }
+        mSongManager.downloadCurrentTrack(state);
     }
 
     @Override
@@ -133,7 +133,23 @@ public class SongService extends Service implements SongServiceContract.ISongSer
     }
 
     @Override
-    public void favoritesSong() {
+    public void favoritesSong(int state) {
+
+    }
+
+    @Override
+    public List<Track> getListTrack() {
+        return null;
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        return 0;
+    }
+
+    @Override
+    public int getTypeTrack() {
+        return 0;
     }
 
     @Override

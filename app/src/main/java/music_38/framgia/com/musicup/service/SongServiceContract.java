@@ -1,5 +1,7 @@
 package music_38.framgia.com.musicup.service;
 
+import java.util.List;
+
 import music_38.framgia.com.musicup.data.model.Track;
 
 public class SongServiceContract {
@@ -14,13 +16,11 @@ public class SongServiceContract {
 
         void nextSong();
 
-        void nextSongMini();
-
         void shuffleSong(int shuffleType);
 
         void loopSong(int loopType);
 
-        void downloadCurrentTrack();
+        void downloadCurrentTrack(int state);
 
         void seekTo(int seekTo);
 
@@ -30,7 +30,13 @@ public class SongServiceContract {
 
         Track getTrackCurrent();
 
-        void favoritesSong();
+        void favoritesSong(int state);
+
+        List<Track> getListTrack();
+
+        int getCurrentPosition();
+
+        int getTypeTrack();
     }
 
     public interface OnMediaPlayerChangeListener {
@@ -42,14 +48,20 @@ public class SongServiceContract {
         void onLoopChange(int state);
 
         void onShuffleChange(int state);
+    }
 
-        void onDownLoadChange(int state);
-
-        void onDurationSong(int duration);
-
-        void onCurrentDurationSong(int duration);
+    public interface OnChangeButtonMediaPlayer {
+        void onTrackChange(Track track);
 
         void onFavoritesChange(int state);
+
+        void onDownLoadChange(int state);
+    }
+
+    public interface OnChangePlayNow {
+        void onTrackChange(Track track, int position);
+
+        void onListChange(List<Track> tracks);
     }
 
     public interface OnMiniPlayerChangeListener {

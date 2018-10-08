@@ -4,6 +4,11 @@ import music_38.framgia.com.musicup.R;
 
 public class Constants {
 
+    public static final String URI_IMAGE_PLAYLIST
+            = "android.resource://music_38.framgia.com.musicup/drawable/image_top_country";
+    public static final String URI_IMAGE
+            = "android.resource://music_38.framgia.com.musicup/drawable/image_default";
+
     public class Genre {
         public static final String ALL_MUSIC = "All Music";
         public static final String ALL_AUDIO = "All Audio";
