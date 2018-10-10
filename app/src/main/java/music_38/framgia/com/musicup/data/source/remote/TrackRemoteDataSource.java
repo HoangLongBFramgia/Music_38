@@ -11,19 +11,6 @@ import static music_38.framgia.com.musicup.BuildConfig.API_KEY;
 
 public class TrackRemoteDataSource implements TrackDataSource.RemoteDataSource {
 
-    private void getGenreByTrackFromApi(Genre genre, Callback callBack) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(Constants.SoundCloud.BASE_URL)
-                .append(Constants.SoundCloud.PARAM_KIND)
-                .append(Constants.SoundCloud.PARAM_GENRE)
-                .append(Constants.SoundCloud.PARAM_TYPE)
-                .append(genre.getType())
-                .append(Constants.SoundCloud.PARAM_CLIENT_ID)
-                .append(API_KEY);
-        String url = stringBuilder.toString();
-        new GenreRemoteAsyncTask(callBack, genre).execute(url);
-    }
-
     public static String getStreamUrl(int id) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(Constants.Stream.STREAM_URL)
@@ -35,12 +22,7 @@ public class TrackRemoteDataSource implements TrackDataSource.RemoteDataSource {
     }
 
     @Override
-    public void getGenre(Genre genre, Callback<Genre> callback) {
-        getGenreByTrackFromApi(genre, callback);
-    }
-
-    @Override
-    public void getSearchTrack(String searchKey, Callback<Genre> callback) {
+    public void getTrackSearch(String searchKey, Callback<Genre> callback) {
         getTrackBySearch(searchKey, callback);
     }
 
@@ -59,5 +41,4 @@ public class TrackRemoteDataSource implements TrackDataSource.RemoteDataSource {
 
         new SearchTrackRemoteAsyncTask(callBack, searchKey).execute(url);
     }
-
 }
